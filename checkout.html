@@ -1,14 +1,6 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "78233a09-2311-41ae-9830-c2e51bfbd427",
-    });
-  });
 </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -226,6 +218,7 @@
 <script src="[https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js](https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js)"></script>
 <script src="[https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js](https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js)"></script>
 <script src="[https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js](https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js)">
+<script src="[https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js](https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js)"></script>
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDLjAPGx9s1iiY9EGSd5len115dRQbQCYw",
@@ -242,7 +235,9 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
 // Initialize Cloud Firestore and get a reference to the service
-const db = getFirestore(app);</script>
+const db = getFirestore(app);
+const messaging = firebase.messaging(app);
+</script>
 
 </body>
 </html>
