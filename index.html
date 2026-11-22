@@ -14,57 +14,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDLjAPGx9s1iiY9EGSd5len115dRQbQCYw",
-      authDomain: "food-delivery-app-24517.firebaseapp.com",
-      projectId: "food-delivery-app-24517",
-      storageBucket: "food-delivery-app-24517.firebasestorage.app",
-      messagingSenderId: "869509993841",
-      appId: "1:869509993841:web:d968d5491ca1719ec2d2d0",
-      measurementId: "G-3TG883F50G"
-    };
-
-    // Initialize compat instance
-    firebase.initializeApp(firebaseConfig);
-    const analytics = firebase.analytics();
-    const db = firebase.firestore();
-    const messaging = firebase.messaging();
-
-    window.handleFileSelected = function(input) {
-      if (input.files && input.files[0]) {
-        alert("Payment screenshot attached successfully!");
-      }
-    };
-
-    window.prepareAndPlaceOrder = function() {
-      const address = document.getElementById('deliveryAddressInput').value;
-      const phone = document.getElementById('phoneNumberInput').value;
-      if (!address || !phone) {
-        alert("Please fill in your delivery address and phone number.");
-        return;
-      }
-      alert("Order placed successfully! Redirecting...");
-      window.location.href = "order-confirmation.html";
-    };
-
-    document.getElementById('paymentMethodSelect').addEventListener('change', function() {
-      const upiSection = document.getElementById('upiSection');
-      if (this.value === 'upi') {
-        upiSection.classList.remove('hidden');
-      } else {
-        upiSection.classList.add('hidden');
-      }
-    });
-    window.prepareAndPlaceOrder = function() {
-      const address = document.getElementById('deliveryAddressInput').value;
-      const phone = document.getElementById('phoneNumberInput').value;
-      if (!address || !phone) {
-        alert("Please fill in your delivery address and phone number.");
-        return;
-      }
-
-style>
+ <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .modal-backdrop { transition: opacity 0.3s ease-in-out; }
@@ -761,6 +711,20 @@ document.addEventListener('DOMContentLoaded', () => {
   loadMenuItems();
   updateCartUI();
 });
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLjAPGx9s1iiY9EGSd5len115dRQbQCYw",
+      authDomain: "food-delivery-app-24517.firebaseapp.com",
+      projectId: "food-delivery-app-24517",
+      storageBucket: "food-delivery-app-24517.firebasestorage.app",
+      messagingSenderId: "869509993841",
+      appId: "1:869509993841:web:d968d5491ca1719ec2d2d0",
+      measurementId: "G-3TG883F50G"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const analytics = firebase.analytics();
+    const db = firebase.firestore();
+    const messaging = firebase.messaging();
 
     </script>
 </body>
