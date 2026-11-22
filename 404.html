@@ -379,4 +379,353 @@
             { 
                 id: 'campa', 
                 name: 'Campa', 
+            portion: '1 Pc', 
+                price: 35, 
+                category: 'drinks', 
+                img: 'campa.jpg', 
+                fallback: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200' 
+            }
+        ];
+
+        let cart = JSON.parse(localStorage.getItem('cartData')) || {};
+        let isOtpSent = false;
+        let activeCustomizingItem = null;
+        let extraQuantities = {};
+
+        function renderMenuItems(itemsToRender = menuItems) {
+            const container = document.getElementById('food-container');
+            container.innerHTML = '';
+
+            itemsToRender.forEach(item => {
+                container.innerHTML += `
+                    <div class="bg-white p-3.5 rounded-2xl border border-rose-200/70 shadow-sm flex gap-3.5 items-center hover:shadow-md transition">
+                        <img src="${item.img}" class="w-20 h-20 rounded-xl object-cover flex-shrink-0 bg-gray-50 border border-gray-200" onerror="this.src='${item.fallback}'">
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-extrabold text-gray-900 text-sm truncate">${item.name} <span class="text-xs font-normal text-gray-500">(${item.portion})</span></h3>
+                            <p class="text-rose-600 font-black text-sm mt-0.5">₹${item.price.toFixed(2)}</p>
+                            <div id="controls-${item.id}" class="mt-2">
+                                <button onclick="openCustomizationModal('${item.id}')" class="bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-xs px-4 py-1.5 rounded-xl shadow-xs transition flex items-center gap-1">
+                                    <i class="fa-solid fa-plus text-[10px]"></i> Add Item
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            itemsToRender.forEach(item => {
+                updateQuantityControls(item.id, item.name, item.price);
+            });
+        }
+
+        function updateQuantityControls(id, name, price) {
+            const container = document.getElementById(`controls-${id}`);
+            if (!container) return;
+
+            const item = menuItems.find(i => i.id === id);
+            const hasOptions = item && ((item.variants && item.variants.length > 0) || (item.extras && item.extras.length > 0));
+
+            if (cart[id] && cart[id].qty > 0) {
+                container.innerHTML = `
+                    <div class="flex items-center border border-rose-300 rounded-xl overflow-hidden bg-rose-50/80 w-max shadow-inner">
+                        <button onclick="updateQty('${id}', -1)" class="w-7 h-7 bg-rose-600 text-white font-black text-xs flex items-center justify-center hover:bg-rose-700 transition">-</button>
+                        <span class="px-3 text-xs font-black text-rose-800">${cart[id].qty}</span>
+                        <button onclick="updateQty('${id}', 1)" class="w-7 h-7 bg-rose-600 text-white font-black text-xs flex items-center justify-center hover:bg-rose-700 transition">+</button>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <button onclick="openCustomizationModal('${item.id}')" class="bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-xs px-4 py-1.5 rounded-xl shadow-xs transition flex items-center gap-1">
+                        <i class="fa-solid fa-plus text-[10px]"></i> Add Item
+                    </button>
+                `;
+            }
+        }
+
+        function openCustomizationModal(id) {
+            const item = menuItems.find(i => i.id === id);
+            if (!item) return;
+
+            activeCustomizingItem = item;
+            extraQuantities = {};
             
+            const hasOptions = (item.variants && item.variants.length > 0) || (item.extras && item.extras.length > 0);
+
+            if (!hasOptions) {
+                addToCart(item.id, item.name, item.price);
+                return;
+            }
+
+            document.getElementById('modalItemTitle').innerText = item.name;
+            document.getElementById('modalItemSub').innerText = `Portion: ${item.portion}`;
+            
+            const body = document.getElementById('modalOptionsBody');
+            body.innerHTML = '';
+
+            if (item.variants && item.variants.length > 0) {
+                let variantHTML = `<div class="space-y-2"><p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Choose Option</p><div class="space-y-2">`;
+                item.variants.forEach((v, index) => {
+                    variantHTML += `
+                        <label class="flex items-center justify-between p-3 border rounded-2xl border-gray-200 cursor-pointer hover:border-rose-400 transition bg-gray-50/80">
+                            <div class="flex items-center gap-2.5">
+                                <input type="radio" name="modalVariant" value="${v.id}" data-price="${v.price}" data-name="${v.name}" ${index === 0 ? 'checked' : ''} onchange="calculateModalPrice()" class="accent-rose-600 w-4 h-4">
+                                <span class="text-xs font-bold text-gray-900">${v.name}</span>
+                            </div>
+                            <span class="text-xs font-black text-rose-600">₹${v.price}</span>
+                        </label>
+                    `;
+                });
+                variantHTML += `</div></div>`;
+                body.innerHTML += variantHTML;
+            }
+
+            if (item.extras && item.extras.length > 0) {
+                let extrasHTML = `<div class="space-y-2 mt-3"><p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Add Extra Toppings</p><div class="space-y-2">`;
+                item.extras.forEach(ex => {
+                    extraQuantities[ex.id] = 0;
+                    extrasHTML += `
+                        <div class="flex items-center justify-between p-3 border rounded-2xl border-gray-200 bg-gray-50/80">
+                            <div>
+                                <span class="text-xs font-bold text-gray-900 block">${ex.name}</span>
+                                <span class="text-[10px] font-bold text-rose-600">+₹${ex.price} each</span>
+                            </div>
+                            <div class="flex items-center border border-gray-300 rounded-xl overflow-hidden bg-white">
+                                <button onclick="changeExtraQty('${ex.id}', -1)" class="w-7 h-7 bg-gray-100 text-gray-700 font-bold text-xs hover:bg-gray-200">-</button>
+                                <span id="extra-qty-${ex.id}" class="px-2.5 text-xs font-black text-gray-900">0</span>
+                                <button onclick="changeExtraQty('${ex.id}', 1)" class="w-7 h-7 bg-gray-100 text-gray-700 font-bold text-xs hover:bg-gray-200">+</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                extrasHTML += `</div></div>`;
+                body.innerHTML += extrasHTML;
+            }
+
+            document.getElementById('modalAddBtn').onclick = () => submitCustomization();
+            calculateModalPrice();
+            document.getElementById('customizationModal').classList.remove('hidden');
+        }
+
+        function changeExtraQty(extraId, delta) {
+            if (!extraQuantities[extraId]) extraQuantities[extraId] = 0;
+            extraQuantities[extraId] = Math.max(0, extraQuantities[extraId] + delta);
+            document.getElementById(`extra-qty-${extraId}`).innerText = extraQuantities[extraId];
+            calculateModalPrice();
+        }
+
+        function calculateModalPrice() {
+            let total = 0;
+            const selectedVariant = document.querySelector('input[name="modalVariant"]:checked');
+            if (selectedVariant) {
+                total += parseFloat(selectedVariant.getAttribute('data-price'));
+            } else if (activeCustomizingItem) {
+                total += activeCustomizingItem.price;
+            }
+
+            if (activeCustomizingItem && activeCustomizingItem.extras) {
+                activeCustomizingItem.extras.forEach(ex => {
+                    const qty = extraQuantities[ex.id] || 0;
+                    total += qty * ex.price;
+                });
+            }
+
+            document.getElementById('modalTotalPrice').innerText = `₹${total.toFixed(2)}`;
+        }
+
+        function submitCustomization() {
+            let selectedName = activeCustomizingItem.name;
+            let basePrice = activeCustomizingItem.price;
+            let cartKey = activeCustomizingItem.id;
+            let extraLabels = [];
+            let extrasTotal = 0;
+
+            const selectedVariant = document.querySelector('input[name="modalVariant"]:checked');
+            if (selectedVariant) {
+                selectedName = selectedVariant.getAttribute('data-name');
+                basePrice = parseFloat(selectedVariant.getAttribute('data-price'));
+                cartKey = selectedVariant.value;
+            }
+
+            if (activeCustomizingItem.extras) {
+                activeCustomizingItem.extras.forEach(ex => {
+                    const qty = extraQuantities[ex.id] || 0;
+                    if (qty > 0) {
+                        extrasTotal += qty * ex.price;
+                        extraLabels.push(`${ex.name} x${qty}`);
+                    }
+                });
+            }
+
+            const finalPrice = basePrice + extrasTotal;
+            if (extraLabels.length > 0) {
+                selectedName += ` (${extraLabels.join(', ')})`;
+                cartKey += '_' + Date.now();
+            }
+
+            addToCart(cartKey, selectedName, finalPrice);
+            closeCustomizationModal();
+        }
+
+        function closeCustomizationModal() {
+            document.getElementById('customizationModal').classList.add('hidden');
+        }
+
+        function addToCart(id, name, price) {
+            if (cart[id]) {
+                cart[id].qty += 1;
+            } else {
+                cart[id] = { name, price, qty: 1 };
+            }
+            saveCart();
+            updateCartUI();
+            const originalItem = menuItems.find(i => i.id === id);
+            updateQuantityControls(id, cart[id]?.name || originalItem?.name, cart[id]?.price || originalItem?.price);
+        }
+
+        function updateQty(id, delta) {
+            if (cart[id]) {
+                cart[id].qty += delta;
+                if (cart[id].qty <= 0) {
+                    delete cart[id];
+                }
+                saveCart();
+                updateCartUI();
+                const originalItem = menuItems.find(i => i.id === id);
+                updateQuantityControls(id, cart[id]?.name || originalItem?.name, cart[id]?.price || originalItem?.price);
+            }
+        }
+
+        function saveCart() {
+            localStorage.setItem('cartData', JSON.stringify(cart));
+        }
+
+        function updateCartUI() {
+            let total = 0;
+            let count = 0;
+            for (const id in cart) {
+                total += cart[id].price * cart[id].qty;
+                count += cart[id].qty;
+            }
+            const summaryBar = document.getElementById('cartSummary');
+            const headerCount = document.getElementById('headerCartCount');
+            headerCount.innerText = count;
+            
+            if (count > 0) {
+                summaryBar.classList.remove('hidden');
+                document.getElementById('cartCount').innerText = count;
+                document.getElementById('cartTotal').innerText = `₹${total.toFixed(2)}`;
+            } else {
+                summaryBar.classList.add('hidden');
+            }
+        }
+
+        function filterCategory(cat) {
+            const filtered = menuItems.filter(item => item.category === cat);
+            renderMenuItems(filtered);
+        }
+
+        function resetFilter() {
+            renderMenuItems(menuItems);
+            document.getElementById('searchInput').value = '';
+        }
+
+        function filterFoodItems() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const filtered = menuItems.filter(item => item.name.toLowerCase().includes(query));
+            renderMenuItems(filtered);
+        }
+
+        function openAuthModal() {
+            document.getElementById('authModal').classList.remove('hidden');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.add('hidden');
+        }
+
+        function handleGoogleSignIn() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider)
+                .then(result => {
+                    alert(`Welcome ${result.user.displayName}! Signed in successfully.`);
+                    closeAuthModal();
+                })
+                .catch(err => {
+                    alert("Google Sign-In failed: " + err.message);
+                });
+        }
+
+        function handlePhoneAuthStep() {
+            if (!isOtpSent) {
+                let phone = document.getElementById('phoneNumber').value.trim();
+                if (phone.length < 10) {
+                    alert("Please enter a valid 10-digit phone number.");
+                    return;
+                }
+                alert("OTP sent to " + phone);
+                isOtpSent = true;
+                document.getElementById('otpSection').classList.remove('hidden');
+                document.getElementById('authActionBtn').innerText = "Verify & Sign In";
+            } else {
+                let otp = document.getElementById('otpInput').value.trim();
+                if (otp.length === 6) {
+                    alert("Phone authentication successful!");
+                    closeAuthModal();
+                } else {
+                    alert("Please enter the 6-digit OTP.");
+                }
+            }
+        }
+
+async function loadMenuItems() {
+  const menuContainer = document.getElementById('food-container');
+  try {
+    const querySnapshot = await firebase.firestore().collection('menu').get();
+    const items = [];
+    querySnapshot.forEach((doc) => {
+      items.push({ id: doc.id, ...doc.data() });
+    });
+    renderMenuItems(items);
+  } catch (error) {
+    console.error("Error fetching menu items: ", error);
+  }
+}
+async function loadMenuItems() {
+  const menuContainer = document.getElementById('food-container');
+  try {
+    const snapshot = await firebase.firestore().collection('menu').get();
+    console.log("Total documents found: ", snapshot.size);
+    const items = [];
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      items.push({ id: doc.id, ...data });
+    });
+    console.log("Items loaded: ", items);
+    renderMenuItems(items);
+  } catch (error) {
+    console.error("Error fetching menu items: ", error);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadMenuItems();
+  updateCartUI();
+});
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLjAPGx9s1iiY9EGSd5len115dRQbQCYw",
+      authDomain: "food-delivery-app-24517.firebaseapp.com",
+      projectId: "food-delivery-app-24517",
+      storageBucket: "food-delivery-app-24517.firebasestorage.app",
+      messagingSenderId: "869509993841",
+      appId: "1:869509993841:web:d968d5491ca1719ec2d2d0",
+      measurementId: "G-3TG883F50G"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const analytics = firebase.analytics();
+    const db = firebase.firestore();
+    const messaging = firebase.messaging();
+
+    </script>
+</body>
+</html>
