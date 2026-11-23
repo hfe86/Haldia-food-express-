@@ -51,7 +51,7 @@
         <input type="tel" id="phoneNumber" required pattern="[0-9]{10}" placeholder="10-digit mobile number" class="w-full border border-slate-200 rounded-2xl p-3.5 text-xs bg-slate-50 font-medium focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition">
       </div>
 
-      <button type="submit" id="placeOrderBtn" class="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-sm rounded-2xl shadow-lg shadow-emerald-200 transition flex items-center justify-center gap-2 cursor-pointer mt-2">
+      <button type="submit" id="placeOrderBtn"class="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-sm rounded-2xl shadow-lg shadow-emerald-200 transition flex items-center justify-center gap-2 cursor-pointer mt-2">
         <i class="fa-solid fa-truck text-xs"></i> Place Order
       </button>
     </form>
@@ -189,7 +189,7 @@
       };
 
       localStorage.setItem('lastPlacedOrder', JSON.stringify(orderData));
-      localStorage.removeItem('cartData');
+      localStorage.removeItem('cartData');addDoc(collection(db, "orders"), { items, total, address, phone, date: new Date() })
 
       window.location.href = 'order-confirmation.html?mode=cod';
     }
