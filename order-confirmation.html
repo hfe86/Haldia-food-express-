@@ -226,6 +226,26 @@
     function triggerSupportCall() {
       alert("Haldia Food Express Support Number: 7548968062");
     }
+    document.addEventListener('DOMContentLoaded', () => {
+    const savedOrder = localStorage.getItem('lastPlacedOrder');
+    if (savedOrder) {
+        try {
+            const order = JSON.parse(savedOrder);
+            const orderIdElement = document.getElementById('orderIdDisplay');
+            const addressElement = document.getElementById('deliveryAddressDisplay');
+            
+            if (orderIdElement && order.orderId) {
+                orderIdElement.innerText = order.orderId;
+            }
+            if (addressElement && order.deliveryAddress) {
+                addressElement.innerText = order.deliveryAddress;
+            }
+        } catch (e) {
+            console.error("Error parsing stored order:", e);
+        }
+    }
+});
+
   </script>
 </body>
 </html>
