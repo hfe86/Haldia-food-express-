@@ -8,11 +8,6 @@
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- Firebase Compat Scripts -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
 
  <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -22,6 +17,33 @@
         .glass-header { backdrop-filter: blur(12px); background: rgba(255, 255, 255, 0.85); }
     </style>
 </head>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLjAPGx9s1iiY9EGSd5len115dRQbQCYw",
+      authDomain: "food-delivery-app-24517.firebaseapp.com",
+      projectId: "food-delivery-app-24517",
+      storageBucket: "food-delivery-app-24517.firebasestorage.app",
+      messagingSenderId: "869509993841",
+      appId: "1:869509993841:web:d968d5491ca1719ec2d2d0",
+      measurementId: "G-3TG883F50G"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const analytics = firebase.analytics();
+    const db = firebase.firestore();
+    const messaging = firebase.messaging();
+
+    messaging.onMessage((payload) => {
+      console.log('Message received in foreground:', payload);
+      if (payload.notification) {
+        alert("Notification: " + payload.notification.title + "\n" + payload.notification.body);
+      }
+    });</script>
 <body class="bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 min-h-screen pb-28 font-sans text-gray-800 selection:bg-rose-500 selection:text-white">
 
     <!-- Header -->
@@ -711,21 +733,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadMenuItems();
   updateCartUI();
 });
-    const firebaseConfig = {
-      apiKey: "AIzaSyDLjAPGx9s1iiY9EGSd5len115dRQbQCYw",
-      authDomain: "food-delivery-app-24517.firebaseapp.com",
-      projectId: "food-delivery-app-24517",
-      storageBucket: "food-delivery-app-24517.firebasestorage.app",
-      messagingSenderId: "869509993841",
-      appId: "1:869509993841:web:d968d5491ca1719ec2d2d0",
-      measurementId: "G-3TG883F50G"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const analytics = firebase.analytics();
-    const db = firebase.firestore();
-    const messaging = firebase.messaging();
-
+    
     </script>
 </body>
 </html>
