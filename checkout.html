@@ -189,7 +189,14 @@
       };
 
       localStorage.setItem('lastPlacedOrder', JSON.stringify(orderData));
-      localStorage.removeItem('cartData');addDoc(collection(db, "orders"), { items, total, address, phone, date: new Date() })
+      localStorage.removeItem('cartData');
+addDoc(collection(db, "orders"), orderData)
+.then(() => {
+window.location.href = 'order-confirmation.html?mode=cod';
+})
+.catch((error) => {
+console.error("Error adding document: ", error);
+});
 
       window.location.href = 'order-confirmation.html?mode=cod';
     }
