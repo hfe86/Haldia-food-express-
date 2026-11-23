@@ -21,7 +21,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
-
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDLjAPGx9s1iiY9EGSd5len115dRQbQCYw",
@@ -37,6 +36,7 @@
     const analytics = firebase.analytics();
     const db = firebase.firestore();
     const messaging = firebase.messaging();
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/firebase-messaging-sw.js'); }
 if (typeof window !== 'undefined' && 'Notification' in window) { Notification.requestPermission().then(permission => { if (permission === 'granted') { return firebase.messaging().getToken(); } }).then(token => { console.log('Token:', token); }).catch(err => { console.log('Error:', err); }); }
     messaging.onMessage((payload) => {
       console.log('Message received in foreground:', payload);
