@@ -36,8 +36,10 @@
     const analytics = firebase.analytics();
     const db = firebase.firestore();
     const messaging = firebase.messaging();
-    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/firebase-messaging-sw.js'); }
-if (typeof window !== 'undefined' && 'Notification' in window) { Notification.requestPermission().then(permission => { if (permission === 'granted') { return firebase.messaging().getToken(); } }).then(token => { console.log('Token:', token); }).catch(err => { console.log('Error:', err); }); }
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/firebase-messaging-sw.js') .then((registration) => { console.log('Service Worker registered'); }).catch((err) => { console.log('Registration failed', err); }); }
+if (typeof window !== 'undefined' && 'Notification' in window) { Notification.requestPermission().then((permission) => { if (permission === 'granted') { return firebase.messaging().getToken({ vapidKey: 'BHQtWnZTg9iCb2lMWxJa4LACiHC7JzDAcdyNvxM1uFZhFN3ukbPjruhS9z04esL896c2AaEjF2zK3MGYzXEdl0' }).then((token) => { console.log('Token:', token); }).catch((err) => { console.log('Error:', err); }); } }); }
+
+
     messaging.onMessage((payload) => {
       console.log('Message received in foreground:', payload);
       if (payload.notification) {
