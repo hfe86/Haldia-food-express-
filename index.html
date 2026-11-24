@@ -36,16 +36,36 @@
     const analytics = firebase.analytics();
     const db = firebase.firestore();
     const messaging = firebase.messaging();
-    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/firebase-messaging-sw.js') .then((registration) => { console.log('Service Worker registered'); }).catch((err) => { console.log('Registration failed', err); }); }
-if (typeof window !== 'undefined' && 'Notification' in window) { Notification.requestPermission().then((permission) => { if (permission === 'granted') { return firebase.messaging().getToken({ vapidKey: 'BHQtWnZTg9iCb2lMWxJa4LACiHC7JzDAcdyNvxM1uFZhFN3ukbPjruhS9z04esL896c2AaEjF2zK3MGYzXEdl0' }).then((token) => { console.log('Token:', token); }).catch((err) => { console.log('Error:', err); }); } }); }
+   if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/firebase-messaging-sw.js').then((registration) => {
+    console.log('Service Worker registered');
+  }).catch((err) => {
+    console.log('Registration failed', err);
+  });
+}
 
+if (typeof window !== 'undefined' && 'Notification' in window) {
+  Notification.requestPermission().then((permission) => {
+    if (permission === 'granted') {
+      return firebase.messaging().getToken({
+        vapidKey: 'BHQtWnZTg9iCb2lMWxJa4LACiHC7JzDAcdyNvxM1uFZhFN3ukbPjruhS9z04esL896c2AaEjF2zK3MGYzXEdl0'
+      }).then((token) => {
+        console.log('Token:', token);
+        alert('Token: ' + token);
+      }).catch((err) => {
+        console.log('Error:', err);
+      });
+    }
+  });
+}
 
-    messaging.onMessage((payload) => {
-      console.log('Message received in foreground:', payload);
-      if (payload.notification) {
-        alert("Notification: " + payload.notification.title + "\n" + payload.notification.body);
-      }
-    });</script>
+messaging.onMessage((payload) => {
+  console.log('Message received in foreground:', payload);
+  if (payload.notification) {
+    alert('Notification: ' + payload.notification.title + "\n" + payload.notification.body);
+  }
+});</script>
+ 
 <body class="bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 min-h-screen pb-28 font-sans text-gray-800 selection:bg-rose-500 selection:text-white">
 
     <!-- Header -->
